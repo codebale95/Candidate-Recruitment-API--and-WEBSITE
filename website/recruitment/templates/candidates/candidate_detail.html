@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{{ candidate.name }}</h1>
+<p><strong>Email:</strong> {{ candidate.email }}</p>
+<p><strong>Role:</strong> {{ candidate.role }}</p>
+<p><strong>Status:</strong> {{ candidate.get_status_display }}</p>
+<p><strong>Resume:</strong></p>
+<pre>{{ candidate.resume_text }}</pre>
+{% if user.groups.all.0.name == 'Recruiter' %}
+<a href="{% url 'candidate_update' candidate.pk %}">Edit</a>
+<a href="{% url 'candidate_delete' candidate.pk %}">Delete</a>
+<a href="{% url 'move_stage' candidate.pk %}">Move Stage</a>
+{% endif %}
+<a href="{% url 'candidate_list' %}">Back to List</a>
+{% endblock %}

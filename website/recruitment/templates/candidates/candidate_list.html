@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">Candidates</h1>
+        {% if not is_recruiter %}
+            {% if not candidates %}
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Submit Your Application</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" action="{% url 'candidate_create' %}">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Name</label>
+                                <input type="text" class="form-control" id="name" name="name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="role" class="form-label">Role</label>
+                                <input type="text" class="form-control" id="role" name="role" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="resume_text" class="form-label">Resume Text</label>
+                                <textarea class="form-control" id="resume_text" name="resume_text" rows="6" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Submit Application</button>
+                        </form>
+                    </div>
+                </div>
+            {% else %}
+                <h2>Your Application Status</h2>
+                {% for candidate in candidates %}
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ candidate.name }}</h5>
+                            <p class="card-text"><strong>Email:</strong> {{ candidate.email }}</p>
+                            <p class="card-text"><strong>Role:</strong> {{ candidate.role }}</p>
+                            <p class="card-text"><strong>Status:</strong> <span class="status-{{ candidate.status|lower }}">{{ candidate.get_status_display }}</span></p>
+                            <a href="{% url 'candidate_detail' candidate.pk %}" class="btn btn-info btn-sm">View Details</a>
+                            <a href="{% url 'candidate_update' candidate.pk %}" class="btn btn-warning btn-sm">Edit</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% else %}
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2>All Applications</h2>
+                <a href="{% url 'candidate_create' %}" class="btn btn-success">Add New Candidate</a>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for candidate in candidates %}
+                                    <tr>
+                                        <td><a href="{% url 'candidate_detail' candidate.pk %}" class="text-decoration-none">{{ candidate.name }}</a></td>
+                                        <td>{{ candidate.email }}</td>
+                                        <td>{{ candidate.role }}</td>
+                                        <td>
+                                            <span class="status-{{ candidate.status|lower }}">{{ candidate.get_status_display }}</span>
+                                        </td>
+                                        <td>
+                                            {% if candidate.status == 'APPLIED' %}
+                                                <form method="post" action="{% url 'move_stage' candidate.pk %}" class="d-inline">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="status" value="SCREENING">
+                                                    <button type="submit" class="btn btn-primary btn-sm btn-action">Screen</button>
+                                                </form>
+                                            {% elif candidate.status == 'SCREENING' %}
+                                                <form method="post" action="{% url 'move_stage' candidate.pk %}" class="d-inline">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="status" value="INTERVIEW">
+                                                    <button type="submit" class="btn btn-warning btn-sm btn-action">Interview</button>
+                                                </form>
+                                            {% elif candidate.status == 'INTERVIEW' %}
+                                                <form method="post" action="{% url 'move_stage' candidate.pk %}" class="d-inline">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="status" value="HIRED">
+                                                    <button type="submit" class="btn btn-success btn-sm btn-action">Hire</button>
+                                                </form>
+                                                <form method="post" action="{% url 'move_stage' candidate.pk %}" class="d-inline">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="status" value="REJECTED">
+                                                    <button type="submit" class="btn btn-danger btn-sm btn-action">Reject</button>
+                                                </form>
+                                            {% endif %}
+                                            <a href="{% url 'candidate_update' candidate.pk %}" class="btn btn-secondary btn-sm btn-action">Edit</a>
+                                            <a href="{% url 'candidate_delete' candidate.pk %}" class="btn btn-outline-danger btn-sm btn-action">Delete</a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

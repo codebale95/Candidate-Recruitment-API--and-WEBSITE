@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{% if candidate %}Update{% else %}Create{% endif %} Candidate</h1>
+<form method="post">
+    {% csrf_token %}
+    <label for="name">Name:</label>
+    <input type="text" id="name" name="name" value="{{ candidate.name|default:'' }}" required><br><br>
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" value="{{ candidate.email|default:'' }}" required><br><br>
+    <label for="role">Role:</label>
+    <input type="text" id="role" name="role" value="{{ candidate.role|default:'' }}" required><br><br>
+    <label for="resume_text">Resume Text:</label><br>
+    <textarea id="resume_text" name="resume_text" rows="10" cols="50" required>{{ candidate.resume_text|default:'' }}</textarea><br><br>
+    <button type="submit">{% if candidate %}Update{% else %}Create{% endif %}</button>
+</form>
+<a href="{% url 'candidate_list' %}">Cancel</a>
+{% endblock %}

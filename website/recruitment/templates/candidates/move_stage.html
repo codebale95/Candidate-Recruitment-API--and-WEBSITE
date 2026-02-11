@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Move Stage for {{ candidate.name }}</h1>
+<form method="post">
+    {% csrf_token %}
+    <label for="status">New Status:</label>
+    <select id="status" name="status" required>
+        {% for status_value, status_display in candidate.STATUS_CHOICES %}
+            <option value="{{ status_value }}" {% if status_value == candidate.status %}selected{% endif %}>{{ status_display }}</option>
+        {% endfor %}
+    </select><br><br>
+    <button type="submit">Move Stage</button>
+</form>
+<a href="{% url 'candidate_detail' candidate.pk %}">Cancel</a>
+{% endblock %}
